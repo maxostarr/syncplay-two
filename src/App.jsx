@@ -1,21 +1,31 @@
 import React from 'react';
 import ReactPlayer from 'react-player'
-import './App.css';
-import Player from './Player.jsx';
-import SelectVid from './SelectVid.jsx';
+import AppBar from './AppBar'
 
+import CssBaseline from '@material-ui/core/CssBaseline';
+import { withStyles } from '@material-ui/styles';
 
 import ConnectionsManager from './connectionsManager'
 
+const styles = theme => ({
+  player: {
+    height: '90vh'
+  },
+});
 class App extends React.Component {
   state = {
     url: "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
     myID: "",
     peerID: "",
-    message: "",
+    isConnected: false,
     isLocalFile: false,
     isPlaying: false,
-    played: 0
+    played: 0,
+    windowHeight: 100
+  }
+
+  componentWillMount() {
+    this.setState({ height: window.innerHeight + 'px' });
   }
 
   handlePeerEvents = (eventObj) => {
@@ -24,6 +34,12 @@ class App extends React.Component {
       case "ID":
         this.setState({
           myID: eventObj.data
+        })
+        break;
+      case "open":
+        this.setState({
+          isConnected: true,
+          peerID: eventObj.data
         })
         break;
       case "data":
@@ -81,7 +97,9 @@ class App extends React.Component {
     this.setState({
       played: e
     })
-    ConnectionsManager.sendDataToPeer({ type: "seeking", data: this.state.played })
+    setTimeout(() => {
+      ConnectionsManager.sendDataToPeer({ type: "seeking", data: this.state.played })
+    }, 500);
   }
 
   onProgress = (e) => {
@@ -110,14 +128,11 @@ class App extends React.Component {
     }
   }
 
-  handleSubmitID = (event) => {
-    ConnectionsManager.connectToPeer(this.state.peerID, this.handlePeerEvents)
-    event.preventDefault();
-  }
-
-  handleSubmitMessage = (event) => {
-    ConnectionsManager.sendDataToPeer(this.state.message)
-    event.preventDefault();
+  handleConnectToPeer = (peerID) => {
+    this.setState({
+      peerID: peerID
+    })
+    ConnectionsManager.connectToPeer(peerID, this.handlePeerEvents)
   }
 
   handleChange = (event) => {
@@ -129,43 +144,38 @@ class App extends React.Component {
   }
 
   render() {
-    let { url, isPlaying, played } = this.state
+    const { classes } = this.props;
+    let { url, isPlaying } = this.state
     return (
-      <div className="App" >
-        {/* <Player
-          url={this.state.url}
-          isPlaying={this.state.isPlaying}
-          playPause={this.playPause}
-          onPlay={this.onPlay}
-          onPause={this.onPause}
-          onSeek={this.onSeek}
-          played={this.state.played}
-        /> */}
+      <div className={classes.app} >
+        <CssBaseline />
 
-        <ReactPlayer
-          ref={this.ref}
-          url={url}
-          playing={isPlaying}
-          controls={true}
-          onPause={this.onPause}
-          onPlay={this.onPlay}
-          onSeek={this.onSeek}
-          onProgress={this.onProgress}
-        />
+        <AppBar
+          onChangeUrl={this.onChangeUrl.bind(this)}
+          handleConnectToPeer={this.handleConnectToPeer}
+          myID={this.state.myID}
+          isConnected={this.state.isConnected}
+          peerID={this.state.peerID} />
 
-        <SelectVid onChangeUrl={this.onChangeUrl.bind(this)} />
-        <form onSubmit={this.handleSubmitID}>
-          <input type="text" id="peerID" placeholder="PeerID" value={this.state.peerID} onChange={this.handleChange} ></input>
-          <button type="submit">Connect to Peer</button>
-        </form>
-        <form onSubmit={this.handleSubmitMessage}>
-          <input type="text" id="message" value={this.state.message} onChange={this.handleChange} ></input>
-          <button type="submit">Send</button>
-        </form>
-        {this.state.myID || "Yeet"}
-      </div>
+        <div className={classes.player}>
+
+          <ReactPlayer
+            ref={this.ref}
+            url={url}
+            playing={isPlaying}
+            controls={true}
+            onPause={this.onPause}
+            onPlay={this.onPlay}
+            onSeek={this.onSeek}
+            onProgress={this.onProgress}
+            width='100%'
+            height='100%'
+          />
+        </div>
+      </div >
     );
   }
 }
 
-export default App;
+export default withStyles(styles)(App);
+

@@ -22,6 +22,10 @@ let initPeer = (callback) => {
 let addConnectionListeners = (callback) => {
   connection.on('open', () => {
     // Receive messages
+    callback({
+      type: "open",
+      data: connection.peer
+    })
     connection.on('data', function (data) {
       console.log('Received', data);
       callback({
