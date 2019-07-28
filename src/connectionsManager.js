@@ -1,7 +1,7 @@
 import Peer from 'peerjs';
 
 let peer = new Peer()
-let connection = null;
+let connections = [];
 
 let initPeer = (callback) => {
   peer.on('open', function (id) {
@@ -13,29 +13,57 @@ let initPeer = (callback) => {
   });
 
   peer.on('connection', (conn) => {
-    connection = conn;
-    console.log("Connection from: " + connection.peer);
+    connections.push(conn);
+    console.log("Connection from: " + connections[connections.length - 1].peer);
     addConnectionListeners(callback);
   })
 }
 
 let addConnectionListeners = (callback) => {
-  connection.on('open', () => {
+  connections[connections.length - 1].on('open', () => {
     // Receive messages
     callback({
       type: "open",
-      data: connection.peer
+      data: connections[connections.length - 1].peer
     })
-    connection.on('data', function (data) {
+    connections[connections.length - 1].on('data', function (data) {
       console.log('Received', data);
-      callback({
-        type: "data",
-        data: data
-      })
+      if (data.type === "peerList") {
+        const recievedPeerList = data.data
+        console.log("Peer List", recievedPeerList);
+        const indexOfOwnID = recievedPeerList.indexOf(peer.id)
+        console.log("indexOfOwnID", indexOfOwnID);
+        if (indexOfOwnID > -1) {
+          recievedPeerList.splice(indexOfOwnID, 1);
+        }
+        console.log("Peer List without self", recievedPeerList);
+        const currentPeers = connections.map(connection => connection.peer)
+        const newPeers = recievedPeerList.filter((item) => !currentPeers.includes(item))
+        console.log('newPeers: ', newPeers);
+        if (newPeers.length > 0) {
+          newPeers.forEach(peerID => {
+            peer.connect(peerID)
+          })
+          callback({
+            type: "newPeers",
+            data: newPeers
+          })
+        }
+      } else {
+        callback({
+          type: "data",
+          data: data
+        })
+      }
     });
 
     // Send messages
-    connection.send('Hello!');
+    const peerList = connections.map(connection => connection.peer)
+
+    connections[connections.length - 1].send({
+      type: "peerList",
+      data: peerList
+    });
   })
 }
 
@@ -45,11 +73,15 @@ export default {
   },
 
   connectToPeer: (peerID, callback) => {
-    connection = peer.connect(peerID)
-    addConnectionListeners(callback);
+    if (!connections.map(connection => connection.peer).includes(peerID)) {
+      connections.push(peer.connect(peerID));
+      addConnectionListeners(callback);
+    }
   },
 
   sendDataToPeer: (data) => {
-    connection.send(data)
+    connections.forEach(connection => {
+      connection.send(data)
+    })
   }
 }

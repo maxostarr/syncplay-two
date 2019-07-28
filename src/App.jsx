@@ -8,16 +8,18 @@ import { withStyles } from '@material-ui/styles';
 
 import ConnectionsManager from './connectionsManager'
 
+import Box from '@material-ui/core/Box';
+
 const styles = theme => ({
   player: {
-    height: '90vh'
+    height: '50vh'
   },
 });
 class App extends React.Component {
   state = {
     url: "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
     myID: "",
-    peerID: "",
+    peers: [],
     isConnected: false,
     isLocalFile: false,
     isPlaying: false,
@@ -38,9 +40,13 @@ class App extends React.Component {
         })
         break;
       case "open":
-        this.setState({
-          isConnected: true,
-          peerID: eventObj.data
+        this.setState(state => {
+          const newPeerList = [...state.peers, eventObj.data]
+          return {
+            ...state,
+            isConnected: true,
+            peers: newPeerList
+          }
         })
         break;
       case "data":
@@ -70,6 +76,17 @@ class App extends React.Component {
             break;
         }
         break;
+      case "newPeers":
+        console.log("New Peers");
+
+        this.setState(state => {
+          const mergedPeerList = [...state.peers, ...eventObj.data]
+          return {
+            ...state,
+            peers: mergedPeerList
+          }
+        })
+        break;
       default:
         break;
     }
@@ -77,8 +94,10 @@ class App extends React.Component {
   }
 
   playPause = () => {
+    console.log("ok playpause");
+
     this.setState({ isPlaying: !this.state.isPlaying })
-    ConnectionsManager.sendDataToPeer({ type: "playPause", data: this.state.isPlaying })
+    // ConnectionsManager.sendDataToPeer({ type: "playPause", data: this.state.isPlaying })
   }
 
   onPlay = () => {
@@ -130,9 +149,15 @@ class App extends React.Component {
   }
 
   handleConnectToPeer = (peerID) => {
-    this.setState({
-      peerID: peerID
-    })
+
+    // this.setState(state => {
+    //   const newPeerList = [...state.peers, peerID];
+
+    //   return {
+    //     ...state,
+    //     peers: newPeerList
+    //   }
+    // })
     ConnectionsManager.connectToPeer(peerID, this.handlePeerEvents)
   }
 
@@ -146,36 +171,43 @@ class App extends React.Component {
 
   render() {
     const { classes } = this.props;
-    let { url, isPlaying } = this.state
+    let { url, isPlaying, peers } = this.state
     return (
       <div className={classes.app} >
         <CssBaseline />
-        <Grid container>
-          <Grid container>
+        <Grid container direction="column" >
+          <Grid item xs={12}>
             <AppBar
               onChangeUrl={this.onChangeUrl.bind(this)}
               handleConnectToPeer={this.handleConnectToPeer}
               myID={this.state.myID}
               isConnected={this.state.isConnected}
               peerID={this.state.peerID} />
+            {/* <Box height={100} width="100%" bgcolor="background.paper">Reet</Box> */}
           </Grid>
-          <Grid container>
-            <Grid item xs={10} >
-              <ReactPlayer
-                ref={this.ref}
-                url={url}
-                playing={isPlaying}
-                controls={true}
-                onPause={this.onPause}
-                onPlay={this.onPlay}
-                onSeek={this.onSeek}
-                onProgress={this.onProgress}
-                width='100%'
-                height='100%'
-              />
-            </Grid>
-            <Grid item xs={2}>
-              <PeerList />
+          <Grid item xs={12}>
+            <Grid container >
+              <Grid item xs></Grid>
+              <Grid item xs={8} >
+                {/* <Box height={100} width="100%" bgcolor="background.paper">Reet</Box> */}
+                <ReactPlayer
+                  ref={this.ref}
+                  url={url}
+                  playing={isPlaying}
+                  controls={true}
+                  onPause={this.onPause}
+                  onPlay={this.onPlay}
+                  onSeek={this.onSeek}
+                  onProgress={this.onProgress}
+                  width='100%'
+                  height='100%'
+                />
+              </Grid>
+              <Grid item xs></Grid>
+              <Grid item xs={2}>
+                {/* <Box height={100} width="100%" bgcolor="background.paper">Reet</Box> */}
+                <PeerList peers={peers} />
+              </Grid>
             </Grid>
           </Grid>
         </Grid>

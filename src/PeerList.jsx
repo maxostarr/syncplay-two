@@ -4,35 +4,29 @@ import { List, ListItem, ListItemText, Divider } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    width: '100%',
-    maxWidth: 360,
+    // width: '100%',
+    // maxWidth: 360,
     backgroundColor: theme.palette.background.paper,
   },
 }));
 
 
 
-const PeerList = (props) => {
+const PeerList = ({ peers }) => {
+  console.log(peers);
+
   const classes = useStyles();
+  const peerListItems = peers.map(peer => {
+    return (
+      <ListItem key={peer}>
+        <ListItemText primary={peer} />
+      </ListItem>
+    )
+  })
   return (
     <div className={classes.root}>
-      <List component="nav" aria-label="main mailbox folders">
-        <ListItem button>
-
-          <ListItemText primary="Inbox" />
-        </ListItem>
-        <ListItem button>
-
-          <ListItemText primary="Drafts" />
-        </ListItem>
-      </List>
-      <Divider />
-      <List component="nav" aria-label="secondary mailbox folders">
-        <ListItem button>
-          <ListItemText primary="Trash" />
-        </ListItem>
-        <ListItemText primary="Spam" />
-
+      <List aria-label="peers">
+        {peerListItems}
       </List>
     </div>
   );
