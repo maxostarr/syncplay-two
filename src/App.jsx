@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactPlayer from 'react-player'
 import AppBar from './AppBar'
+import PeerList from "./PeerList";
 
-import CssBaseline from '@material-ui/core/CssBaseline';
+import { CssBaseline, Grid } from '@material-ui/core';
 import { withStyles } from '@material-ui/styles';
 
 import ConnectionsManager from './connectionsManager'
@@ -149,29 +150,35 @@ class App extends React.Component {
     return (
       <div className={classes.app} >
         <CssBaseline />
-
-        <AppBar
-          onChangeUrl={this.onChangeUrl.bind(this)}
-          handleConnectToPeer={this.handleConnectToPeer}
-          myID={this.state.myID}
-          isConnected={this.state.isConnected}
-          peerID={this.state.peerID} />
-
-        <div className={classes.player}>
-
-          <ReactPlayer
-            ref={this.ref}
-            url={url}
-            playing={isPlaying}
-            controls={true}
-            onPause={this.onPause}
-            onPlay={this.onPlay}
-            onSeek={this.onSeek}
-            onProgress={this.onProgress}
-            width='100%'
-            height='100%'
-          />
-        </div>
+        <Grid container>
+          <Grid container>
+            <AppBar
+              onChangeUrl={this.onChangeUrl.bind(this)}
+              handleConnectToPeer={this.handleConnectToPeer}
+              myID={this.state.myID}
+              isConnected={this.state.isConnected}
+              peerID={this.state.peerID} />
+          </Grid>
+          <Grid container>
+            <Grid item xs={10} >
+              <ReactPlayer
+                ref={this.ref}
+                url={url}
+                playing={isPlaying}
+                controls={true}
+                onPause={this.onPause}
+                onPlay={this.onPlay}
+                onSeek={this.onSeek}
+                onProgress={this.onProgress}
+                width='100%'
+                height='100%'
+              />
+            </Grid>
+            <Grid item xs={2}>
+              <PeerList />
+            </Grid>
+          </Grid>
+        </Grid>
       </div >
     );
   }
