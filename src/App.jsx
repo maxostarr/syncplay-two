@@ -1,19 +1,17 @@
-import React from 'react';
-import ReactPlayer from 'react-player'
-import AppBar from './AppBar'
+import React from "react";
+import ReactPlayer from "react-player";
+import AppBar from "./AppBar";
 import PeerList from "./PeerList";
 
-import { CssBaseline, Grid } from '@material-ui/core';
-import { withStyles } from '@material-ui/styles';
+import { CssBaseline, Grid } from "@material-ui/core";
+import { withStyles } from "@material-ui/styles";
 
-import ConnectionsManager from './connectionsManager'
-
-import Box from '@material-ui/core/Box';
+import ConnectionsManager from "./connectionsManager";
 
 const styles = theme => ({
   player: {
-    height: '50vh'
-  },
+    height: "50vh"
+  }
 });
 class App extends React.Component {
   state = {
@@ -25,29 +23,29 @@ class App extends React.Component {
     isPlaying: false,
     played: 0,
     windowHeight: 100
-  }
+  };
 
   componentWillMount() {
-    this.setState({ height: window.innerHeight + 'px' });
+    this.setState({ height: window.innerHeight + "px" });
   }
 
-  handlePeerEvents = (eventObj) => {
+  handlePeerEvents = eventObj => {
     console.log(eventObj);
     switch (eventObj.type) {
       case "ID":
         this.setState({
           myID: eventObj.data
-        })
+        });
         break;
       case "open":
         this.setState(state => {
-          const newPeerList = [...state.peers, eventObj.data]
+          const newPeerList = [...state.peers, eventObj.data];
           return {
             ...state,
             isConnected: true,
             peers: newPeerList
-          }
-        })
+          };
+        });
         break;
       case "data":
         console.log("Data: " + eventObj.data);
@@ -56,12 +54,12 @@ class App extends React.Component {
             this.setState({
               url: eventObj.data.data,
               isLocalFile: false
-            })
+            });
             break;
           case "playPause":
             this.setState({
               isPlaying: eventObj.data.data
-            })
+            });
             break;
           case "seeking":
             if (eventObj.data.data === this.state.played) {
@@ -69,8 +67,8 @@ class App extends React.Component {
             }
             this.setState({
               played: eventObj.data.data
-            })
-            this.player.seekTo(parseFloat(this.state.played))
+            });
+            this.player.seekTo(parseFloat(this.state.played));
             break;
           default:
             break;
@@ -80,76 +78,89 @@ class App extends React.Component {
         console.log("New Peers");
 
         this.setState(state => {
-          const mergedPeerList = [...state.peers, ...eventObj.data]
+          const mergedPeerList = [...state.peers, ...eventObj.data];
           return {
             ...state,
             peers: mergedPeerList
-          }
-        })
+          };
+        });
         break;
       default:
         break;
     }
-
-  }
+  };
 
   playPause = () => {
     console.log("ok playpause");
 
-    this.setState({ isPlaying: !this.state.isPlaying })
+    this.setState({ isPlaying: !this.state.isPlaying });
     // ConnectionsManager.sendDataToPeer({ type: "playPause", data: this.state.isPlaying })
-  }
+  };
 
   onPlay = () => {
-    console.log('onPlay')
-    this.setState({ isPlaying: true })
-    ConnectionsManager.sendDataToPeer({ type: "playPause", data: this.state.isPlaying })
-  }
+    console.log("onPlay");
+    this.setState({ isPlaying: true });
+    ConnectionsManager.sendDataToPeer({
+      type: "playPause",
+      data: this.state.isPlaying
+    });
+  };
 
   onPause = () => {
-    console.log('onPause')
-    this.setState({ isPlaying: false })
-    ConnectionsManager.sendDataToPeer({ type: "playPause", data: this.state.isPlaying })
-  }
+    console.log("onPause");
+    this.setState({ isPlaying: false });
+    ConnectionsManager.sendDataToPeer({
+      type: "playPause",
+      data: this.state.isPlaying
+    });
+  };
 
-  onSeek = (e) => {
+  onSeek = e => {
     console.log("On seeq: ", e);
     this.setState({
       played: e
-    })
+    });
     setTimeout(() => {
-      ConnectionsManager.sendDataToPeer({ type: "seeking", data: this.state.played })
+      ConnectionsManager.sendDataToPeer({
+        type: "seeking",
+        data: this.state.played
+      });
     }, 500);
-  }
+  };
 
-  onProgress = (e) => {
+  onProgress = e => {
     console.log(e.playedSeconds);
-    if (!this.state.isPlaying && e.playedSeconds !== 0 && e.playedSeconds !== this.state.played) {
+    if (
+      !this.state.isPlaying &&
+      e.playedSeconds !== 0 &&
+      e.playedSeconds !== this.state.played
+    ) {
       this.setState({
         played: e.playedSeconds
-      })
-      ConnectionsManager.sendDataToPeer({ type: "seeking", data: this.state.played })
+      });
+      ConnectionsManager.sendDataToPeer({
+        type: "seeking",
+        data: this.state.played
+      });
     }
-
-  }
+  };
 
   componentDidMount() {
-    ConnectionsManager.initPeer(this.handlePeerEvents)
+    ConnectionsManager.initPeer(this.handlePeerEvents);
   }
 
   onChangeUrl = (newUrl, isLocalFile) => {
     this.setState({
       url: newUrl,
       isLocalFile: isLocalFile
-    })
+    });
 
     if (!isLocalFile) {
-      ConnectionsManager.sendDataToPeer({ type: "urlUpdate", data: newUrl })
+      ConnectionsManager.sendDataToPeer({ type: "urlUpdate", data: newUrl });
     }
-  }
+  };
 
-  handleConnectToPeer = (peerID) => {
-
+  handleConnectToPeer = peerID => {
     // this.setState(state => {
     //   const newPeerList = [...state.peers, peerID];
 
@@ -158,37 +169,38 @@ class App extends React.Component {
     //     peers: newPeerList
     //   }
     // })
-    ConnectionsManager.connectToPeer(peerID, this.handlePeerEvents)
-  }
+    ConnectionsManager.connectToPeer(peerID, this.handlePeerEvents);
+  };
 
-  handleChange = (event) => {
+  handleChange = event => {
     this.setState({ [event.target.id]: event.target.value });
-  }
+  };
 
   ref = player => {
-    this.player = player
-  }
+    this.player = player;
+  };
 
   render() {
     const { classes } = this.props;
-    let { url, isPlaying, peers } = this.state
+    let { url, isPlaying, peers } = this.state;
     return (
-      <div className={classes.app} >
+      <div className={classes.app}>
         <CssBaseline />
-        <Grid container direction="column" >
+        <Grid container direction="column">
           <Grid item xs={12}>
             <AppBar
               onChangeUrl={this.onChangeUrl.bind(this)}
               handleConnectToPeer={this.handleConnectToPeer}
               myID={this.state.myID}
               isConnected={this.state.isConnected}
-              peerID={this.state.peerID} />
+              peerID={this.state.peerID}
+            />
             {/* <Box height={100} width="100%" bgcolor="background.paper">Reet</Box> */}
           </Grid>
           <Grid item xs={12}>
-            <Grid container >
+            <Grid container>
               <Grid item xs></Grid>
-              <Grid item xs={8} >
+              <Grid item xs={8}>
                 {/* <Box height={100} width="100%" bgcolor="background.paper">Reet</Box> */}
                 <ReactPlayer
                   ref={this.ref}
@@ -199,8 +211,8 @@ class App extends React.Component {
                   onPlay={this.onPlay}
                   onSeek={this.onSeek}
                   onProgress={this.onProgress}
-                  width='100%'
-                  height='100%'
+                  width="100%"
+                  height="100%"
                 />
               </Grid>
               <Grid item xs></Grid>
@@ -211,10 +223,9 @@ class App extends React.Component {
             </Grid>
           </Grid>
         </Grid>
-      </div >
+      </div>
     );
   }
 }
 
 export default withStyles(styles)(App);
-
