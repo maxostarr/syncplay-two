@@ -11,8 +11,7 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-player": "^1.11.0",
-    "react-scripts": "^3.3.0",
-    "release-it": "^12.4.3"
+    "react-scripts": "^3.3.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -20,9 +19,10 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron-dev": "set ELECTRON_START_URL=http://localhost:3000 && electron . --allow-file-access-from-files",
-    "dev": "nf start",
     "preelectron-pack": "yarn build",
     "electron-pack": "electron-builder -wl -c.extraMetadata.main=build/electron.js"
+    "release": "release-it"
+    "dev": "nf start",
   },
   "build": {
     "appId": "com.electron.syncplayTwo",
@@ -54,7 +54,6 @@
     ]
   },
   "devDependencies": {
-    "electron": "^5.0.2",
-    "electron-builder": "^21.2.0"
+    "electron": "^5.0.2"
   }
 }
