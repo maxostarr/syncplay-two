@@ -9,7 +9,8 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-player": "^1.11.0",
-    "react-scripts": "3.0.1"
+    "react-scripts": "^3.3.0",
+    "release-it": "^12.4.3"
   },
   "scripts": {
     "start": "react-scripts start",
