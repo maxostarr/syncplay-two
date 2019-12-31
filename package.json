@@ -20,9 +20,9 @@
     "eject": "react-scripts eject",
     "electron-dev": "set ELECTRON_START_URL=http://localhost:3000 && electron . --allow-file-access-from-files",
     "preelectron-pack": "yarn build",
-    "electron-pack": "electron-builder -wl -c.extraMetadata.main=build/electron.js"
-    "release": "release-it"
-    "dev": "nf start",
+    "electron-pack": "electron-builder -wl -c.extraMetadata.main=build/electron.js",
+    "release": "release-it",
+    "dev": "nf start"
   },
   "build": {
     "appId": "com.electron.syncplayTwo",
