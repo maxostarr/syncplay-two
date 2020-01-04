@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "author": "Max Starr",
+  "email": "info@maxstarr.xyz",
   "description": "Replacement for Syncplay",
   "dependencies": {
     "@material-ui/core": "^4.0.0",
@@ -20,7 +21,7 @@
     "eject": "react-scripts eject",
     "electron-dev": "set ELECTRON_START_URL=http://localhost:3000 && electron . --allow-file-access-from-files",
     "preelectron-pack": "yarn build",
-    "electron-pack": "electron-builder -wl -c.extraMetadata.main=build/electron.js",
+    "electron-pack": "electron-builder -c.extraMetadata.main=build/electron.js",
     "release": "release-it",
     "dev": "nf start"
   },
@@ -28,6 +29,15 @@
     "appId": "com.electron.syncplayTwo",
     "productName": "SyncplayTwo",
     "copyright": "Cpyright © 2020 Max Starr",
+    "win": {
+      "target": "portable"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },
     "files": [
       "build/**/*",
       "node_modules/**/*"
@@ -54,6 +64,7 @@
     ]
   },
   "devDependencies": {
-    "electron": "^5.0.2"
+    "electron": "^5.0.2",
+    "electron-builder": "^21.2.0"
   }
 }

@@ -36,7 +36,8 @@ class App extends React.Component {
     isConnected: false,
     isLocalFile: false,
     isPlaying: false,
-    played: 0
+    played: 0,
+    isPeerListOpen: false
   };
 
   handlePeerEvents = eventObj => {
@@ -190,9 +191,19 @@ class App extends React.Component {
     this.player = player;
   };
 
+  openClosePeerList = e => {
+    console.log("openclose");
+
+    this.setState({
+      ...this.state,
+      isPeerListOpen: !this.state.isPeerListOpen
+    });
+  };
+
   render() {
     const { classes } = this.props;
     let { url, isPlaying, peers } = this.state;
+
     return (
       <div className={classes.root}>
         <CssBaseline />
@@ -202,6 +213,7 @@ class App extends React.Component {
           myID={this.state.myID}
           isConnected={this.state.isConnected}
           peerID={this.state.peerID}
+          openClosePeerList={this.openClosePeerList}
         />
         <div className={classes.playerAndPeerList}>
           <ReactPlayer
@@ -215,7 +227,7 @@ class App extends React.Component {
             onProgress={this.onProgress}
             className={classes.player}
           />
-          <PeerList peers={peers} />
+          {this.state.isPeerListOpen ? <PeerList peers={peers} /> : <></>}
         </div>
       </div>
     );

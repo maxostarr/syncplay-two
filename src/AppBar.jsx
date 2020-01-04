@@ -5,7 +5,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import InputBase from "@material-ui/core/InputBase";
 import { fade } from "@material-ui/core/styles/colorManipulator";
-import SearchIcon from "@material-ui/icons/Search";
+import { Search, Menu } from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
 
 const useStyles = makeStyles(theme => ({
@@ -128,7 +128,7 @@ const SimpleAppBar = props => {
           </Typography>
           <div className={classes.search}>
             <div className={classes.searchIcon}>
-              <SearchIcon />
+              <Search />
             </div>
             <form onSubmit={onSubmit}>
               <InputBase
@@ -184,6 +184,9 @@ const SimpleAppBar = props => {
               </Button>
             </div>
           </form>
+          <Button onClick={props.openClosePeerList}>
+            <Menu />
+          </Button>
         </Toolbar>
       </AppBar>
     </div>
