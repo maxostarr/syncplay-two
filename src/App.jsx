@@ -3,7 +3,7 @@ import ReactPlayer from "react-player";
 import AppBar from "./AppBar";
 import PeerList from "./PeerList";
 
-import { CssBaseline, Grid } from "@material-ui/core";
+import { CssBaseline } from "@material-ui/core";
 import { withStyles } from "@material-ui/styles";
 
 import ConnectionsManager from "./connectionsManager";
