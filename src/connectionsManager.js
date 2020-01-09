@@ -1,87 +1,96 @@
-import Peer from 'peerjs';
+import Peer from "peerjs";
 
-let peer = new Peer()
+// let peer = new Peer({ host: "localhost", port: 9000, path: "/myapp" });
+let peer = new Peer();
 let connections = [];
 
-let initPeer = (callback) => {
-  peer.on('open', function (id) {
-    console.log('My peer ID is: ' + id);
+let initPeer = callback => {
+  peer.on("open", function(id) {
+    console.log("My peer ID is: " + id);
     callback({
       type: "ID",
       data: id
-    })
+    });
   });
 
-  peer.on('connection', (conn) => {
+  peer.on("connection", conn => {
     connections.push(conn);
     console.log("Connection from: " + connections[connections.length - 1].peer);
     addConnectionListeners(callback);
-  })
-}
+  });
 
-let addConnectionListeners = (callback) => {
-  connections[connections.length - 1].on('open', () => {
+  peer.on("error", err => console.error(err));
+};
+
+let addConnectionListeners = callback => {
+  connections[connections.length - 1].on("error", err => console.error(err));
+  connections[connections.length - 1].on("open", () => {
     // Receive messages
     callback({
       type: "open",
       data: connections[connections.length - 1].peer
-    })
-    connections[connections.length - 1].on('data', function (data) {
-      console.log('Received', data);
+    });
+    connections[connections.length - 1].on("data", function(data) {
+      console.log("Received", data);
       if (data.type === "peerList") {
-        const recievedPeerList = data.data
+        const recievedPeerList = data.data;
         console.log("Peer List", recievedPeerList);
-        const indexOfOwnID = recievedPeerList.indexOf(peer.id)
+        const indexOfOwnID = recievedPeerList.indexOf(peer.id);
         console.log("indexOfOwnID", indexOfOwnID);
         if (indexOfOwnID > -1) {
           recievedPeerList.splice(indexOfOwnID, 1);
         }
         console.log("Peer List without self", recievedPeerList);
-        const currentPeers = connections.map(connection => connection.peer)
-        const newPeers = recievedPeerList.filter((item) => !currentPeers.includes(item))
-        console.log('newPeers: ', newPeers);
+        const currentPeers = connections.map(connection => connection.peer);
+        const newPeers = recievedPeerList.filter(
+          item => !currentPeers.includes(item)
+        );
+        console.log("newPeers: ", newPeers);
         if (newPeers.length > 0) {
           newPeers.forEach(peerID => {
-            peer.connect(peerID)
-          })
+            peer.connect(peerID);
+          });
           callback({
             type: "newPeers",
             data: newPeers
-          })
+          });
         }
       } else {
         callback({
           type: "data",
           data: data
-        })
+        });
       }
     });
 
     // Send messages
-    const peerList = connections.map(connection => connection.peer)
+    const peerList = connections.map(connection => connection.peer);
 
     connections[connections.length - 1].send({
       type: "peerList",
       data: peerList
     });
-  })
-}
+  });
+};
 
 export default {
-  initPeer: (callback) => {
-    initPeer(callback)
+  initPeer: callback => {
+    initPeer(callback);
   },
 
   connectToPeer: (peerID, callback) => {
+    console.log(`Connect to: ${peerID}`);
+    console.log(connections);
+
     if (!connections.map(connection => connection.peer).includes(peerID)) {
       connections.push(peer.connect(peerID));
       addConnectionListeners(callback);
     }
   },
 
-  sendDataToPeer: (data) => {
+  sendDataToPeer: data => {
     connections.forEach(connection => {
-      connection.send(data)
-    })
+      connection.send(data);
+    });
   }
-}
+};

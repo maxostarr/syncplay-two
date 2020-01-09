@@ -2,7 +2,7 @@ import React from "react";
 import ReactPlayer from "react-player";
 import AppBar from "./AppBar";
 import PeerList from "./PeerList";
-
+import {} from "react-router-dom";
 import { CssBaseline } from "@material-ui/core";
 import { withStyles } from "@material-ui/styles";
 
@@ -30,7 +30,7 @@ const styles = theme => ({
 });
 class App extends React.Component {
   state = {
-    url: "https://www.youtube.com/watch?v=BG1zZ7K5sf0",
+    url: "https://www.youtube.com/watch?v=ucZl6vQ_8Uo",
     myID: "",
     peers: [],
     isConnected: false,
@@ -47,6 +47,14 @@ class App extends React.Component {
         this.setState({
           myID: eventObj.data
         });
+        if (this.props.location.search === "") {
+          this.props.history.push({
+            pathname: "/",
+            search: `${eventObj.data}`
+          });
+        } else {
+          this.handleConnectToPeer(this.props.location.search.substr(1));
+        }
         break;
       case "open":
         this.setState(state => {
@@ -172,14 +180,8 @@ class App extends React.Component {
   };
 
   handleConnectToPeer = peerID => {
-    // this.setState(state => {
-    //   const newPeerList = [...state.peers, peerID];
+    console.log(peerID);
 
-    //   return {
-    //     ...state,
-    //     peers: newPeerList
-    //   }
-    // })
     ConnectionsManager.connectToPeer(peerID, this.handlePeerEvents);
   };
 
@@ -192,8 +194,6 @@ class App extends React.Component {
   };
 
   openClosePeerList = e => {
-    console.log("openclose");
-
     this.setState({
       ...this.state,
       isPeerListOpen: !this.state.isPeerListOpen
